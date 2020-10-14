@@ -52,10 +52,10 @@ impl MinecraftCipher {
     #[inline(always)]
     unsafe fn crypt(&mut self, data: &mut[u8], decrypt: bool) {
         let iv = &mut self.iv;
-        let iv_size = iv.len();
-        let iv_size_m1 = iv_size - 1;
+        const IV_SIZE: usize = 16;
+        const IV_SIZE_MINUS_ONE: usize = IV_SIZE - 1;
         let iv_ptr = iv.as_mut_ptr();
-        let iv_end_ptr = iv_ptr.offset(iv_size_m1 as isize);
+        let iv_end_ptr = iv_ptr.offset(IV_SIZE_MINUS_ONE as isize);
         let tmp_ptr = self.tmp.as_mut_ptr();
         let tmp_offset_one_ptr = tmp_ptr.offset(1);
         let cipher = &mut self.cipher;
@@ -64,11 +64,11 @@ impl MinecraftCipher {
         let data_end_ptr = data_ptr.offset(n as isize);
 
         while data_ptr != data_end_ptr {
-            std::ptr::copy_nonoverlapping(iv_ptr, tmp_ptr, iv_size);
+            std::ptr::copy_nonoverlapping(iv_ptr, tmp_ptr, IV_SIZE);
             cipher.encrypt_block(iv);
             let orig = *data_ptr;
             let updated = orig ^ *iv_ptr;
-            std::ptr::copy_nonoverlapping(tmp_offset_one_ptr, iv_ptr, iv_size_m1);
+            std::ptr::copy_nonoverlapping(tmp_offset_one_ptr, iv_ptr, IV_SIZE_MINUS_ONE);
             if decrypt {
                 *iv_end_ptr = orig;
             } else {
