@@ -38,7 +38,7 @@ impl<W> WriteBridge<W> where W: AsyncWrite + Unpin {
 
     pub async fn write_raw_packet(&mut self, packet: RawPacket<'_, Id>) -> Result<()> {
         let raw_buf = init_buf(&mut self.raw_buf, 512);
-        get_sized_buf(raw_buf, EXTRA_FREE_SPACE);
+        get_sized_buf(raw_buf, EXTRA_FREE_SPACE + packet.data.len());
         (&mut raw_buf[EXTRA_FREE_SPACE..]).copy_from_slice(packet.data);
         let body_len = packet.data.len();
         self.write_packet_in_buf(packet.id, EXTRA_FREE_SPACE, body_len).await
