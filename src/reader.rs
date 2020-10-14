@@ -1,4 +1,4 @@
-use mcproto_rs::v1_15_2::{State, PacketDirection, Id};
+use mcproto_rs::v1_15_2::{State, PacketDirection, Id, RawPacket578};
 use tokio::io::{AsyncRead, AsyncReadExt};
 use super::bridge::Bridge;
 use anyhow::{Result, anyhow};
@@ -8,6 +8,7 @@ use mcproto_rs::types::VarInt;
 use mcproto_rs::{Deserialize, Deserialized};
 use flate2::{FlushDecompress, Status};
 use crate::util::{get_sized_buf, init_buf};
+use std::convert::TryInto;
 
 pub struct ReadBridge<R> {
     stream: R,
@@ -32,7 +33,7 @@ impl<R> ReadBridge<R> where R: AsyncRead + Unpin {
         }
     }
 
-    pub async fn read_packet(&mut self) -> Result<Option<RawPacket<'_, Id>>> {
+    pub async fn read_packet(&mut self) -> Result<Option<RawPacket578<'_>>> {
         // pinning stuff makes this a requirement
         let this = &mut *self;
 
@@ -100,7 +101,7 @@ impl<R> ReadBridge<R> where R: AsyncRead + Unpin {
                 id: packet_id.0,
             },
             data: buf
-        }))
+        }.try_into()?))
     }
 
     async fn read_one_varint(&mut self) -> Result<Option<VarInt>> {

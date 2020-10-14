@@ -210,7 +210,7 @@ dependencies = [
 [[package]]
 name = "mcproto-rs"
 version = "0.1.0"
-source = "git+https://github.com/Twister915/mcproto-rs?branch=master#ed9162f42c847a26ef39f8633286bb0068a1c881"
+source = "git+https://github.com/Twister915/mcproto-rs?branch=master#d018930688c7efabc67a8257dbcb3258cfeeae93"
 dependencies = [
  "base64",
  "flate2",

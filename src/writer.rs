@@ -1,4 +1,4 @@
-use mcproto_rs::v1_15_2::{State, PacketDirection, Id, Packet578};
+use mcproto_rs::v1_15_2::{State, PacketDirection, Id, Packet578, RawPacket578};
 use super::cfb8::MinecraftCipher;
 use super::bridge::Bridge;
 use super::util::get_sized_buf;
@@ -36,14 +36,14 @@ impl<W> WriteBridge<W> where W: AsyncWrite + Unpin {
         }
     }
 
-    pub async fn write_raw_packet(&mut self, packet: RawPacket<'_, Id>) -> Result<()> {
+    pub async fn write_raw_packet(&mut self, packet: RawPacket578<'_>) -> Result<()> {
         let raw_buf = init_buf(&mut self.raw_buf, 512);
         let start_at = EXTRA_FREE_SPACE;
-        let end_at = start_at + packet.data.len();
+        let end_at = start_at + packet.bytes().len();
         get_sized_buf(raw_buf, end_at);
-        (&mut raw_buf[start_at..end_at]).copy_from_slice(packet.data);
-        let body_len = packet.data.len();
-        self.write_packet_in_buf(packet.id, EXTRA_FREE_SPACE, body_len).await
+        (&mut raw_buf[start_at..end_at]).copy_from_slice(packet.bytes());
+        let body_len = packet.bytes().len();
+        self.write_packet_in_buf(packet.id(), EXTRA_FREE_SPACE, body_len).await
     }
 
     pub async fn write_packet(&mut self, packet: Packet578) -> Result<()> {

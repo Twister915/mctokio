@@ -2,9 +2,8 @@ use super::{ReadBridge, WriteBridge};
 use tokio::net::{ToSocketAddrs, TcpStream};
 use tokio::io;
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
-use mcproto_rs::v1_15_2::{PacketDirection, State, Id, Packet578};
+use mcproto_rs::v1_15_2::{PacketDirection, State, Packet578 as Packet, RawPacket578 as RawPacket};
 use crate::Bridge;
-use mcproto_rs::protocol::RawPacket;
 
 pub type TcpReadBridge = ReadBridge<io::BufReader<OwnedReadHalf>>;
 
@@ -53,15 +52,15 @@ impl TcpConnection {
         (self.reader.into_inner(), self.writer.into_inner())
     }
 
-    pub async fn read_packet(&mut self) -> anyhow::Result<Option<RawPacket<'_, Id>>> {
+    pub async fn read_packet(&mut self) -> anyhow::Result<Option<RawPacket<'_>>> {
         self.reader.read_packet().await
     }
 
-    pub async fn write_packet(&mut self, packet: Packet578) -> anyhow::Result<()> {
+    pub async fn write_packet(&mut self, packet: Packet) -> anyhow::Result<()> {
         self.writer.write_packet(packet).await
     }
 
-    pub async fn write_raw_packet<'a>(&'a mut self, packet: RawPacket<'a, Id>) -> anyhow::Result<()> {
+    pub async fn write_raw_packet(&mut self, packet: RawPacket<'_>) -> anyhow::Result<()> {
         self.writer.write_raw_packet(packet).await
     }
 }
