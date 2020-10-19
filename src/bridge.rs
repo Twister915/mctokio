@@ -1,4 +1,4 @@
-use mcproto_rs::v1_15_2::State;
+use super::proto::State;
 use anyhow::Result;
 
 pub trait Bridge {

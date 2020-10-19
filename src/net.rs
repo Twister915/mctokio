@@ -1,9 +1,9 @@
-use super::{ReadBridge, WriteBridge};
+use super::proto::{PacketDirection, State, Packet578 as Packet, RawPacket578 as RawPacket};
+use super::{ReadBridge, WriteBridge, Bridge};
+
 use tokio::net::{ToSocketAddrs, TcpStream};
 use tokio::io;
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
-use mcproto_rs::v1_15_2::{PacketDirection, State, Packet578 as Packet, RawPacket578 as RawPacket};
-use crate::Bridge;
 
 pub type TcpReadBridge = ReadBridge<io::BufReader<OwnedReadHalf>>;
 
