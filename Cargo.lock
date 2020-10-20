@@ -201,10 +201,9 @@ dependencies = [
 [[package]]
 name = "mcproto-rs"
 version = "0.2.0"
-source = "git+https://github.com/Twister915/mcproto-rs?branch=master#51d00fef7da09ae99bcd66f260ef37719dbf8878"
+source = "git+https://github.com/Twister915/mcproto-rs?branch=master#9facbf7d8a9c00b2413be325b23aeed786d7a7c1"
 dependencies = [
  "base64",
- "paste",
  "rand",
  "serde",
  "serde_json",
@@ -294,12 +293,6 @@ name = "opaque-debug"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
-
-[[package]]
-name = "paste"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0520af26d4cf99643dbbe093a61507922b57232d9978d8491fdc8f7b44573c8c"
 
 [[package]]
 name = "pin-project-lite"

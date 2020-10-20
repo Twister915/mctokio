@@ -50,7 +50,7 @@ impl<R> ReadBridge<R> where R: AsyncRead + Unpin {
         let reader = &mut this.stream;
         // buf for raw data
         let raw_buf = init_buf(&mut this.raw_buf, 512);
-        let mut buf = get_sized_buf(raw_buf, packet_len.into());
+        let mut buf = get_sized_buf(raw_buf, packet_len.0 as usize);
         reader.read_exact(buf).await?;
 
         // decrypt if we have encryption state
