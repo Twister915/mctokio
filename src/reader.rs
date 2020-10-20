@@ -1,15 +1,13 @@
 use super::{bridge::Bridge, cfb8::MinecraftCipher, util::{get_sized_buf, init_buf}};
 use mcproto_rs::{
-    protocol::{RawPacket as RawPacketContainer},
+    protocol::{State, PacketDirection, RawPacket, Id},
     types::VarInt,
     Deserialize,
     Deserialized,
 };
-use super::proto::{RawPacket578 as RawPacket, State, PacketDirection, Id};
 use tokio::io::{AsyncRead, AsyncReadExt};
 use anyhow::{Result, anyhow};
 use flate2::{FlushDecompress, Status};
-use std::convert::TryInto;
 
 pub struct ReadBridge<R> {
     stream: R,
@@ -34,7 +32,7 @@ impl<R> ReadBridge<R> where R: AsyncRead + Unpin {
         }
     }
 
-    pub async fn read_packet(&mut self) -> Result<Option<RawPacket<'_>>> {
+    pub async fn read_packet<'a, P: RawPacket<'a>>(&'a mut self) -> Result<Option<P>> {
         // pinning stuff makes this a requirement
         let this = &mut *self;
 
@@ -95,14 +93,11 @@ impl<R> ReadBridge<R> where R: AsyncRead + Unpin {
 
         // read packet id from buf
         let Deserialized { value: packet_id, data: buf } = VarInt::mc_deserialize(buf)?;
-        Ok(Some(RawPacketContainer{
-            id: Id{
-                state: this.state.clone(),
-                direction: this.direction.clone(),
-                id: packet_id.0,
-            },
-            data: buf
-        }.try_into()?))
+        Ok(Some(P::create(Id{
+            id: packet_id.0,
+            state: this.state.clone(),
+            direction: this.direction.clone(),
+        }, buf)?))
     }
 
     async fn read_one_varint(&mut self) -> Result<Option<VarInt>> {

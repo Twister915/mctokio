@@ -201,7 +201,7 @@ dependencies = [
 [[package]]
 name = "mcproto-rs"
 version = "0.2.0"
-source = "git+https://github.com/Twister915/mcproto-rs?branch=master#9facbf7d8a9c00b2413be325b23aeed786d7a7c1"
+source = "git+https://github.com/Twister915/mcproto-rs?branch=master#961ad3024b5d06a3074eacee2d8acc8e73f68a54"
 dependencies = [
  "base64",
  "rand",

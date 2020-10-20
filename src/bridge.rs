@@ -1,5 +1,5 @@
-use super::proto::State;
 use anyhow::Result;
+use mcproto_rs::protocol::State;
 
 pub trait Bridge {
     fn set_state(&mut self, next: State);

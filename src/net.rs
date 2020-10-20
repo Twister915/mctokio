@@ -1,6 +1,5 @@
-use super::proto::{PacketDirection, State, Packet578 as Packet, RawPacket578 as RawPacket};
 use super::{ReadBridge, WriteBridge, Bridge};
-
+use mcproto_rs::protocol::{PacketDirection, Packet, RawPacket, State};
 use tokio::net::{ToSocketAddrs, TcpStream};
 use tokio::io;
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
@@ -52,15 +51,15 @@ impl TcpConnection {
         (self.reader.into_inner(), self.writer.into_inner())
     }
 
-    pub async fn read_packet(&mut self) -> anyhow::Result<Option<RawPacket<'_>>> {
+    pub async fn read_packet<'a, P>(&'a mut self) -> anyhow::Result<Option<P>> where P: RawPacket<'a> {
         self.reader.read_packet().await
     }
 
-    pub async fn write_packet(&mut self, packet: Packet) -> anyhow::Result<()> {
+    pub async fn write_packet<P>(&mut self, packet: P) -> anyhow::Result<()> where P: Packet {
         self.writer.write_packet(packet).await
     }
 
-    pub async fn write_raw_packet(&mut self, packet: RawPacket<'_>) -> anyhow::Result<()> {
+    pub async fn write_raw_packet<'a, P>(&mut self, packet: P) -> anyhow::Result<()> where P: RawPacket<'a> {
         self.writer.write_raw_packet(packet).await
     }
 }

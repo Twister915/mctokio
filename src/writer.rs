@@ -1,17 +1,10 @@
 use super::{bridge::Bridge, util::{get_sized_buf, init_buf}, cfb8::MinecraftCipher};
 use mcproto_rs::{
     types::VarInt,
-    protocol::{Packet as PacketTrait},
+    protocol::{State, PacketDirection, Id, RawPacket, Packet},
     SerializeResult,
     Serialize,
     Serializer,
-};
-use super::proto::{
-    Packet578 as Packet,
-    RawPacket578 as RawPacket,
-    PacketDirection,
-    State,
-    Id,
 };
 use anyhow::{Result, anyhow};
 use tokio::io::{AsyncWrite, AsyncWriteExt};
@@ -43,24 +36,25 @@ impl<W> WriteBridge<W> where W: AsyncWrite + Unpin {
         }
     }
 
-    pub async fn write_raw_packet(&mut self, packet: RawPacket<'_>) -> Result<()> {
+    pub async fn write_raw_packet<'a, P>(&mut self, packet: P) -> Result<()> where P: RawPacket<'a> {
         let raw_buf = init_buf(&mut self.raw_buf, 512);
         let start_at = EXTRA_FREE_SPACE;
-        let end_at = start_at + packet.bytes().len();
+        let data = packet.data();
+        let body_len = data.len();
+        let end_at = start_at + body_len;
         get_sized_buf(raw_buf, end_at);
-        (&mut raw_buf[start_at..end_at]).copy_from_slice(packet.bytes());
-        let body_len = packet.bytes().len();
+        (&mut raw_buf[start_at..end_at]).copy_from_slice(data);
         self.write_packet_in_buf(packet.id(), EXTRA_FREE_SPACE, body_len).await
     }
 
-    pub async fn write_packet(&mut self, packet: Packet) -> Result<()> {
+    pub async fn write_packet<P>(&mut self, packet: P) -> Result<()> where P: Packet {
         let len = {
             let mut serializer = GrowVecSerializer {
                 buf: init_buf(&mut self.raw_buf, 512),
                 at: EXTRA_FREE_SPACE,
             };
 
-            packet.mc_serialize(&mut serializer)?;
+            packet.mc_serialize_body(&mut serializer)?;
             serializer.at - EXTRA_FREE_SPACE
         };
 
