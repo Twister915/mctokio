@@ -1,9 +1,14 @@
 use anyhow::Result;
 use anyhow::anyhow;
-use aesni::block_cipher::generic_array::GenericArray;
-use aesni::Aes128;
-use aesni::block_cipher::{NewBlockCipher, BlockCipherMut};
-use aesni::block_cipher::consts::U16;
+use aes::{
+    Aes128,
+    cipher::{
+        generic_array::GenericArray,
+        NewBlockCipher,
+        BlockCipherMut,
+        consts::U16,
+    },
+};
 
 const BYTES_SIZE: usize = 16;
 
@@ -14,7 +19,6 @@ pub struct MinecraftCipher {
 }
 
 impl MinecraftCipher {
-
     pub fn new(key: &[u8], iv: &[u8]) -> Result<Self> {
         if iv.len() != BYTES_SIZE {
             return Err(anyhow!("iv needs to be 16 bytes"));
@@ -39,17 +43,14 @@ impl MinecraftCipher {
         })
     }
 
-    #[inline]
     pub fn encrypt(&mut self, data: &mut[u8]) {
         unsafe { self.crypt(data, false) }
     }
 
-    #[inline]
     pub fn decrypt(&mut self, data: &mut[u8]) {
         unsafe { self.crypt(data, true) }
     }
 
-    #[inline(always)]
     unsafe fn crypt(&mut self, data: &mut[u8], decrypt: bool) {
         let iv = &mut self.iv;
         const IV_SIZE: usize = 16;
